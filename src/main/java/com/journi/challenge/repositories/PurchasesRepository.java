@@ -26,28 +26,4 @@ public class PurchasesRepository {
     public void save(Purchase purchase) {
         allPurchases.add(purchase);
     }
-
-    public PurchaseStats getLast30DaysStats() {
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE.withZone(ZoneId.of("UTC"));
-
-        LocalDateTime start = LocalDate.now().atStartOfDay().minusDays(30);
-
-        List<Purchase> recentPurchases = allPurchases
-                .stream()
-                .filter(p -> p.getTimestamp().isAfter(start))
-                .sorted(Comparator.comparing(Purchase::getTimestamp))
-                .collect(Collectors.toList());
-
-        long countPurchases = recentPurchases.size();
-        double totalAmountPurchases = recentPurchases.stream().mapToDouble(Purchase::getTotalValue).sum();
-        return new PurchaseStats(
-                formatter.format(recentPurchases.get(0).getTimestamp()),
-                formatter.format(recentPurchases.get(recentPurchases.size() - 1).getTimestamp()),
-                countPurchases,
-                totalAmountPurchases,
-                totalAmountPurchases / countPurchases,
-                recentPurchases.stream().mapToDouble(Purchase::getTotalValue).min().orElse(0.0),
-                recentPurchases.stream().mapToDouble(Purchase::getTotalValue).max().orElse(0.0)
-        );
-    }
 }
